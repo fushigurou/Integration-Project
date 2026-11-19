@@ -4,10 +4,7 @@ import { AppShell } from './components/layout/AppShell'
 import { ToastStack } from './components/ui/ToastStack'
 import { Login } from './pages/Login'
 import { Dashboard } from './pages/Dashboard'
-import { Regions } from './pages/Regions'
 import { Directeurs } from './pages/Directeurs'
-import { Vehicules } from './pages/Vehicules'
-import { Chauffeurs } from './pages/Chauffeurs'
 import type { ReactNode } from 'react'
 import type { Role } from './data/types'
 
@@ -18,7 +15,14 @@ function Guard({
   children: ReactNode
   roles?: Role[]
 }) {
-  const { session } = useApp()
+  const { session, authReady } = useApp()
+  if (!authReady) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">
+        Chargement de la session…
+      </div>
+    )
+  }
   if (!session) return <Navigate to="/" replace />
   if (roles && !roles.includes(session.role)) {
     return <Navigate to={home(session)} replace />
@@ -27,7 +31,14 @@ function Guard({
 }
 
 function PublicOnly({ children }: { children: ReactNode }) {
-  const { session } = useApp()
+  const { session, authReady } = useApp()
+  if (!authReady) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">
+        Chargement de la session…
+      </div>
+    )
+  }
   if (session) return <Navigate to={home(session)} replace />
   return children
 }
@@ -60,34 +71,10 @@ function AppRoutes() {
             }
           />
           <Route
-            path="/regions"
-            element={
-              <Guard roles={['dg']}>
-                <Regions />
-              </Guard>
-            }
-          />
-          <Route
             path="/directeurs"
             element={
               <Guard roles={['dg']}>
                 <Directeurs />
-              </Guard>
-            }
-          />
-          <Route
-            path="/vehicules"
-            element={
-              <Guard roles={['dg', 'dr']}>
-                <Vehicules />
-              </Guard>
-            }
-          />
-          <Route
-            path="/chauffeurs"
-            element={
-              <Guard roles={['dg', 'dr']}>
-                <Chauffeurs />
               </Guard>
             }
           />

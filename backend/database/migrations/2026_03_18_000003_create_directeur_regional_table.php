@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('directeur_regional', function (Blueprint $table) {
             $table->unsignedInteger('id_dr')->primary();
             $table->string('role', 30)->default('DR');
+            $table->string('nom_region', 50)->nullable();
             $table->foreign('id_dr')
                 ->references('id_user')
                 ->on('utilisateur')

@@ -28,6 +28,7 @@ class DirecteurGeneralController extends Controller
             'num' => ['required', 'string', 'max:15'],
             'cin' => ['required', 'string', 'size:8', 'unique:utilisateur,cin'],
             'adresse' => ['nullable', 'string', 'max:255'],
+            'password' => ['nullable', 'string', 'min:6'],
             'role' => ['nullable', 'string', 'max:30'],
         ]);
 
@@ -36,6 +37,7 @@ class DirecteurGeneralController extends Controller
                 'nom' => $data['nom'],
                 'prenom' => $data['prenom'],
                 'email' => $data['email'],
+                'password' => $data['password'] ?? 'steg1234',
                 'num' => $data['num'],
                 'cin' => $data['cin'],
                 'adresse' => $data['adresse'] ?? null,

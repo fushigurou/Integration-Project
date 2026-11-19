@@ -15,7 +15,7 @@ class DirecteurRegionalController extends Controller
     public function index(): JsonResponse
     {
         return response()->json(
-            DirecteurRegional::with(['utilisateur', 'region'])->get()
+            DirecteurRegional::with('utilisateur')->get()
         );
     }
 
@@ -28,6 +28,8 @@ class DirecteurRegionalController extends Controller
             'num' => ['required', 'string', 'max:15'],
             'cin' => ['required', 'string', 'size:8', 'unique:utilisateur,cin'],
             'adresse' => ['nullable', 'string', 'max:255'],
+            'nom_region' => ['required', 'string', 'max:50'],
+            'password' => ['nullable', 'string', 'min:6'],
             'role' => ['nullable', 'string', 'max:30'],
         ]);
 
@@ -36,6 +38,7 @@ class DirecteurRegionalController extends Controller
                 'nom' => $data['nom'],
                 'prenom' => $data['prenom'],
                 'email' => $data['email'],
+                'password' => $data['password'] ?? 'steg1234',
                 'num' => $data['num'],
                 'cin' => $data['cin'],
                 'adresse' => $data['adresse'] ?? null,
@@ -44,15 +47,16 @@ class DirecteurRegionalController extends Controller
             return DirecteurRegional::create([
                 'id_dr' => $user->id_user,
                 'role' => $data['role'] ?? 'DR',
+                'nom_region' => $data['nom_region'],
             ]);
         });
 
-        return response()->json($dr->load(['utilisateur', 'region']), 201);
+        return response()->json($dr->load('utilisateur'), 201);
     }
 
     public function show(DirecteurRegional $directeurRegional): JsonResponse
     {
-        return response()->json($directeurRegional->load(['utilisateur', 'region']));
+        return response()->json($directeurRegional->load('utilisateur'));
     }
 
     public function update(Request $request, DirecteurRegional $directeurRegional): JsonResponse
@@ -76,6 +80,7 @@ class DirecteurRegionalController extends Controller
                 Rule::unique('utilisateur', 'cin')->ignore($user->id_user, 'id_user'),
             ],
             'adresse' => ['nullable', 'string', 'max:255'],
+            'nom_region' => ['sometimes', 'string', 'max:50'],
             'role' => ['sometimes', 'string', 'max:30'],
         ]);
 
@@ -84,12 +89,13 @@ class DirecteurRegionalController extends Controller
                 'nom', 'prenom', 'email', 'num', 'cin', 'adresse',
             ])->all());
 
-            if (array_key_exists('role', $data)) {
-                $directeurRegional->update(['role' => $data['role']]);
+            $drData = collect($data)->only(['role', 'nom_region'])->all();
+            if ($drData !== []) {
+                $directeurRegional->update($drData);
             }
         });
 
-        return response()->json($directeurRegional->fresh()->load(['utilisateur', 'region']));
+        return response()->json($directeurRegional->fresh()->load('utilisateur'));
     }
 
     public function destroy(DirecteurRegional $directeurRegional): JsonResponse

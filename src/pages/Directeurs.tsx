@@ -5,7 +5,7 @@ import type { Directeur } from '../data/types'
 import { Button } from '../components/ui/Button'
 import { ConfirmModal, Modal } from '../components/ui/Modal'
 import { DataTable } from '../components/ui/DataTable'
-import { Field, Input, Select } from '../components/ui/Field'
+import { Field, Input } from '../components/ui/Field'
 import { PageHeader } from '../components/ui/PageHeader'
 
 const empty = (): Directeur => ({
@@ -16,7 +16,7 @@ const empty = (): Directeur => ({
   tel: '',
   adresse: '',
   cin: '',
-  regionId: '',
+  region: '',
 })
 
 export function Directeurs() {
@@ -28,7 +28,7 @@ export function Directeurs() {
 
   const submit = async () => {
     if (!form) return
-    if (!form.nom || !form.prenom || !form.email || !form.regionId || !form.cin || !form.tel) {
+    if (!form.nom || !form.prenom || !form.email || !form.region || !form.cin || !form.tel) {
       toast('Veuillez remplir les champs obligatoires.', 'error')
       return
     }
@@ -45,7 +45,7 @@ export function Directeurs() {
     <>
       <PageHeader
         title="Directeurs régionaux"
-        subtitle="Assignez un directeur à chaque région."
+        subtitle="Gérez les directeurs régionaux STEG."
         actions={
           <Button onClick={() => setForm(empty())}>
             <Plus className="size-4" /> Nouveau directeur
@@ -55,11 +55,7 @@ export function Directeurs() {
 
       <DataTable
         rows={rows}
-        searchKeys={[
-          (d) => `${d.prenom} ${d.nom}`,
-          (d) => d.email,
-          (d) => db.regions.find((r) => r.id === d.regionId)?.nom ?? '',
-        ]}
+        searchKeys={[(d) => `${d.prenom} ${d.nom}`, (d) => d.email, (d) => d.region]}
         columns={[
           {
             key: 'nom',
@@ -72,11 +68,7 @@ export function Directeurs() {
           },
           { key: 'email', header: 'Email', render: (d) => d.email },
           { key: 'tel', header: 'Téléphone', render: (d) => d.tel },
-          {
-            key: 'region',
-            header: 'Région',
-            render: (d) => db.regions.find((r) => r.id === d.regionId)?.nom ?? '—',
-          },
+          { key: 'region', header: 'Région', render: (d) => d.region || '—' },
           {
             key: 'actions',
             header: 'Actions',
@@ -129,21 +121,14 @@ export function Directeurs() {
             <Field label="Email" required>
               <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
             </Field>
-            <Field label="Téléphone">
+            <Field label="Téléphone" required>
               <Input value={form.tel} onChange={(e) => setForm({ ...form, tel: e.target.value })} />
             </Field>
-            <Field label="CIN">
+            <Field label="CIN" required>
               <Input value={form.cin} onChange={(e) => setForm({ ...form, cin: e.target.value })} />
             </Field>
             <Field label="Région" required>
-              <Select value={form.regionId} onChange={(e) => setForm({ ...form, regionId: e.target.value })}>
-                <option value="">Choisir…</option>
-                {db.regions.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.nom}
-                  </option>
-                ))}
-              </Select>
+              <Input value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} />
             </Field>
             <Field label="Adresse">
               <Input value={form.adresse} onChange={(e) => setForm({ ...form, adresse: e.target.value })} />

@@ -21,6 +21,7 @@ class UtilisateurController extends Controller
             'nom' => ['required', 'string', 'max:50'],
             'prenom' => ['required', 'string', 'max:50'],
             'email' => ['required', 'email', 'max:100', 'unique:utilisateur,email'],
+            'password' => ['required', 'string', 'min:6'],
             'num' => ['required', 'string', 'max:15'],
             'cin' => ['required', 'string', 'size:8', 'unique:utilisateur,cin'],
             'adresse' => ['nullable', 'string', 'max:255'],

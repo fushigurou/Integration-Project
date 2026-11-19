@@ -6,14 +6,13 @@ import { Logo } from '../components/layout/Logo'
 import type { Session } from '../data/types'
 
 export function Login() {
-  const { login, loginAs, go, db, loading } = useApp()
+  const { login, go, authReady } = useApp()
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
   const enter = (s: Session, to?: string) => {
-    loginAs(s)
     go(to ?? home(s))
   }
 
@@ -37,27 +36,11 @@ export function Login() {
     }
   }
 
-  const quickDg = async () => {
+  const quickLogin = async (demoEmail: string) => {
     setBusy(true)
     setErr('')
     try {
-      const res = await login('dg@steg.tn', 'steg1234')
-      if (typeof res === 'string') {
-        setErr(res)
-        return
-      }
-      enter(res)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const quickDr = async () => {
-    setBusy(true)
-    setErr('')
-    try {
-      const emailDr = db.drs[0]?.email ?? 'dr.tunis@steg.tn'
-      const res = await login(emailDr, 'steg1234')
+      const res = await login(demoEmail, 'steg1234')
       if (typeof res === 'string') {
         setErr(res)
         return
@@ -74,10 +57,10 @@ export function Login() {
         <Logo light />
         <div>
           <h2 className="max-w-md text-4xl leading-tight font-bold">
-            Gérez les régions, véhicules, chauffeurs et directeurs STEG.
+            Gérez les directeurs régionaux STEG.
           </h2>
           <p className="mt-4 max-w-md text-brand-200">
-            Un espace sécurisé pour piloter le parc et les équipes par région.
+            Authentification JWT sécurisée pour les directions régionales.
           </p>
           <div className="mt-8 h-1 w-24 rounded bg-amber-400" />
         </div>
@@ -91,11 +74,11 @@ export function Login() {
           </div>
           <h1 className="text-2xl font-bold text-slate-900">Connexion</h1>
           <p className="mt-1 mb-6 text-sm text-slate-600">
-            Vous serez redirigé vers l’espace correspondant à votre rôle.
+            Connectez-vous avec votre email STEG. La session est conservée via un jeton JWT.
           </p>
 
-          {loading && (
-            <p className="mb-4 text-sm text-slate-500">Chargement des données…</p>
+          {!authReady && (
+            <p className="mb-4 text-sm text-slate-500">Vérification de la session…</p>
           )}
 
           <form className="space-y-4" onSubmit={submit} noValidate>
@@ -121,7 +104,7 @@ export function Login() {
                 {err}
               </p>
             )}
-            <Button type="submit" size="lg" className="w-full" disabled={busy || loading}>
+            <Button type="submit" size="lg" className="w-full" disabled={busy || !authReady}>
               Se connecter
             </Button>
           </form>
@@ -129,16 +112,25 @@ export function Login() {
           <div className="mt-8 rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-sm font-semibold text-slate-900">Accès démo rapide</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <Button variant="secondary" size="sm" onClick={quickDg} disabled={busy || loading}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => quickLogin('dg@steg.tn')}
+                disabled={busy || !authReady}
+              >
                 Directeur Général
               </Button>
-              <Button variant="secondary" size="sm" onClick={quickDr} disabled={busy || loading}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => quickLogin('dr.tunis@steg.tn')}
+                disabled={busy || !authReady}
+              >
                 Dir. Régional
               </Button>
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              Mot de passe démo : <span className="font-semibold">steg1234</span> · comptes issus
-              de la base MySQL
+              Mot de passe démo : <span className="font-semibold">steg1234</span> · JWT + MySQL
             </p>
           </div>
         </div>

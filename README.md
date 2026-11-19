@@ -1,6 +1,6 @@
 # STEG Missions
 
-Application React + Laravel pour la gestion des **régions**, **véhicules**, **chauffeurs** et **directeurs** STEG.
+Application React + Laravel pour la gestion des **directeurs régionaux** STEG.
 
 ## Frontend
 
@@ -9,9 +9,11 @@ npm install
 npm run dev
 ```
 
-### Rôles démo
+### Auth (JWT)
 
-Mot de passe : `steg1234`
+Login via `POST /api/auth/login` → Bearer JWT stocké en session navigateur (`localStorage`).
+
+Mot de passe démo : `steg1234`
 
 | Rôle | Email |
 |------|-------|

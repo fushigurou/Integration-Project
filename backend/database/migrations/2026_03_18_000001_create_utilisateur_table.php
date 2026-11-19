@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('nom', 50);
             $table->string('prenom', 50);
             $table->string('email', 100)->unique();
+            $table->string('password');
             $table->string('num', 15);
             $table->char('cin', 8)->unique();
             $table->string('adresse', 255)->nullable();

@@ -15,32 +15,12 @@ export function AppShell() {
   const items = session ? NAV[session.role] : []
 
   const searchHits = useMemo(() => {
-    if (!q.trim() || !session) return []
+    if (!q.trim() || !session || session.role !== 'dg') return []
     const needle = q.trim().toLowerCase()
-    const regionScope = session.role === 'dr' ? session.regionId : undefined
-    const hits: Array<{ label: string; to: string }> = []
-
-    db.regions
-      .filter((r) => !regionScope || r.id === regionScope)
-      .filter((r) => r.nom.toLowerCase().includes(needle))
-      .forEach((r) => hits.push({ label: `Région · ${r.nom}`, to: '/regions' }))
-
-    db.drs
-      .filter((d) => !regionScope || d.regionId === regionScope)
-      .filter((d) => `${d.prenom} ${d.nom}`.toLowerCase().includes(needle))
-      .forEach((d) => hits.push({ label: `DR · ${d.prenom} ${d.nom}`, to: '/directeurs' }))
-
-    db.drivers
-      .filter((d) => !regionScope || d.regionId === regionScope)
-      .filter((d) => `${d.prenom} ${d.nom}`.toLowerCase().includes(needle))
-      .forEach((d) => hits.push({ label: `Chauffeur · ${d.prenom} ${d.nom}`, to: '/chauffeurs' }))
-
-    db.vehicles
-      .filter((v) => !regionScope || v.regionId === regionScope)
-      .filter((v) => `${v.matricule} ${v.marque}`.toLowerCase().includes(needle))
-      .forEach((v) => hits.push({ label: `Véhicule · ${v.matricule}`, to: '/vehicules' }))
-
-    return hits.slice(0, 8)
+    return db.drs
+      .filter((d) => `${d.prenom} ${d.nom} ${d.email} ${d.region}`.toLowerCase().includes(needle))
+      .map((d) => ({ label: `DR · ${d.prenom} ${d.nom}`, to: '/directeurs' }))
+      .slice(0, 8)
   }, [q, db, session])
 
   if (!session) return null
@@ -113,7 +93,7 @@ export function AppShell() {
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-500" />
           <input
             aria-label="Recherche globale"
-            placeholder="Rechercher régions, directeurs, chauffeurs, véhicules…"
+            placeholder="Rechercher un directeur régional…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="h-10 w-full rounded-lg border border-slate-300 bg-slate-50 pr-3 pl-9 text-sm placeholder:text-slate-500"
@@ -155,7 +135,7 @@ export function AppShell() {
             type="button"
             aria-label="Déconnexion"
             title="Déconnexion"
-            onClick={logout}
+            onClick={() => void logout()}
             className="cursor-pointer rounded-lg p-2 text-slate-600 hover:bg-slate-100"
           >
             <LogOut className="size-5" />
